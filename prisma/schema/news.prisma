@@ -1,0 +1,13 @@
+model news {
+    createdAt   BigInt?   @db.BigInt
+    updatedAt   BigInt?   @db.BigInt
+    id          Int       @id @default(autoincrement())
+    title       String?   @db.VarChar(255)
+    slug        String?   @unique @db.VarChar(255)
+    thumbnail   String?   @db.VarChar(255)
+    content     String?   @db.Text
+    category    String?   @db.VarChar(50)
+    publishedAt BigInt?   @db.BigInt
+    isActive    Boolean?  @default(true)
+}
+

@@ -1,0 +1,13 @@
+model basicAuth {
+    createdAt BigInt?  @db.BigInt
+    updatedAt BigInt?  @db.BigInt
+    id        Int      @id @default(autoincrement())
+    name      String?  @db.VarChar(255)
+    state     Boolean? @default(true)
+    username  String?
+    password  String?
+    ip        String?
+    auth      String?
+
+    @@map("basic_auth")
+}

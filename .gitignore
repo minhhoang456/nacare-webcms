@@ -1,0 +1,9 @@
+node_modules
+.env
+.env.dev
+.DS_Store
+dist
+test
+.test.ts
+jest.config.ts
+coverage

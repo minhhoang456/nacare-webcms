@@ -1,0 +1,282 @@
+model product {
+  createdAt        Int?
+  updatedAt        Int?
+  id               Int                     @id @default(autoincrement())
+  itemId           Int                     @unique
+  productTypeId    Int
+  name             String                  @db.VarChar(255)
+  isActive         Boolean                 @default(true)
+  description      String?                 @db.VarChar(255)
+  payment          ProductPaymentEnum
+  paymentPoint     Int                     @default(0)
+  paymentCash      Int                     @default(0)
+  originPrice      Int?
+  images           Json
+  isDelete         Boolean                 @default(false)
+  storeId          Int
+  weight           Int
+  pointAccumulated Float?                  @default(0)
+  partnerId        Int?
+  dimensions       Json?                   @default("{}") // length, width, height 
+  sku              String?                 @db.VarChar(255)
+  categoryStoreId  Int?
+  inventories      product_inventory[]
+  inventoryLogs    product_inventory_log[]
+}
+
+enum ProductPaymentEnum {
+  free
+  point
+  cash
+  both
+}
+
+model productType {
+  createdAt         BigInt?                @db.BigInt
+  updatedAt         BigInt?                @db.BigInt
+  id                Int                    @id @default(autoincrement())
+  itemId            Int
+  categoryId        Int
+  subCategoryId     Int?
+  name              String
+  shortDescription  String?
+  description       String
+  images            Json
+  origin            String?                @db.VarChar(255)
+  instruction       String?                @db.VarChar(255)
+  isActive          Boolean
+  isApprove         Boolean                @default(false)
+  thumbnail         String?
+  payment           ProductTypePaymentEnum @default(cash)
+  paymentCash       Int                    @default(0)
+  originPrice       Int
+  storeId           Int
+  tags              Json                   @default("[]")
+  suggestion        Json                   @default("[]")
+  hotSequence       Int                    @default(0)
+  isHot             Boolean                @default(false)
+  trademark         String?
+  guarantee         String?
+  location          String?
+  campaignId        Int                    @default(0)
+  flagIds           Json                   @default("[]")
+  discountRate      Int                    @default(0)
+  merchantIds       Json                   @default("[]")
+  note              String?                @db.VarChar(255)
+  shipMoney         Int?
+  randomText        String?                @db.VarChar(255)
+  partnerId         Int?
+  categoryPartnerId Int?
+  brandId           Int?
+  categoryStoreId   Int?
+  avgRate           Int?
+  countRate         Int?
+  rates             rate[]
+  certificate       String?                @db.VarChar(255)
+
+  @@map("producttype")
+}
+
+enum ProductTypeAccumlatePointTypeEnum {
+  value
+  percent
+}
+
+enum ProductTypePaymentEnum {
+  free
+  point
+  cash
+  both
+}
+
+model attribute {
+  createdAt   BigInt?                   @db.BigInt
+  updatedAt   BigInt?                   @db.BigInt
+  id          Int                       @id @default(autoincrement())
+  name        String?                   @db.VarChar(255)
+  description String?                   @db.VarChar(255)
+  categoryId  Int?
+  displayType AttributeDisplayTypeEnum?
+}
+
+enum AttributeDisplayTypeEnum {
+  text
+  productImage
+}
+
+model attributevalue {
+  createdAt     BigInt? @db.BigInt
+  updatedAt     BigInt? @db.BigInt
+  id            Int     @id @default(autoincrement())
+  attributeId   Int?
+  name          String? @db.VarChar(255)
+  description   String? @db.VarChar(255)
+  productTypeId Int?
+}
+
+model productattributevalue {
+  createdAt        BigInt? @db.BigInt
+  updatedAt        BigInt? @db.BigInt
+  id               Int     @id @default(autoincrement())
+  productId        Int?
+  attributeValueId Int?
+}
+
+model ProductTypeAttribute {
+  createdAt     Int?
+  updatedAt     Int?
+  id            Int  @id @default(autoincrement())
+  productTypeId Int
+  attributeId   Int
+
+  @@map("producttypeattribute")
+}
+
+model store {
+  createdAt            BigInt?      @db.BigInt
+  updatedAt            BigInt?      @db.BigInt
+  id                   Int          @id @default(autoincrement())
+  name                 String?      @db.VarChar(255)
+  logo                 String?      @db.VarChar(255)
+  slogan               String?      @db.VarChar(255)
+  email                String?      @db.VarChar(255)
+  description          String?      @db.VarChar(255)
+  phone                String?      @db.VarChar(255)
+  gpsLocation          String?      @db.VarChar(255)
+  address              String?      @db.VarChar(255)
+  wardId               Int
+  districtId           Int
+  provinceId           Int
+  avgRate              Int?         @default(5)
+  followCount          Int?         @default(0)
+  countRate            Int?         @default(0)
+  background           String?      @db.VarChar(255)
+  chatLink             String?      @db.VarChar(255)
+  productCount         Int?         @default(0)
+  state                Boolean?     @default(true)
+  taxCode              String?      @db.VarChar(255)
+  businessLicense      String?      @db.VarChar(255)
+  imageBusinessLicense String?      @db.VarChar(255)
+  brandStore           brandStore[]
+}
+
+model depot {
+  createdAt   BigInt? @db.BigInt
+  updatedAt   BigInt? @db.BigInt
+  id          Int     @id @default(autoincrement())
+  storeId     Int
+  name        String  @db.VarChar(255)
+  address     String  @db.VarChar(255)
+  phone       String  @db.VarChar(255)
+  email       String  @db.VarChar(255)
+  gpsLocation String  @db.VarChar(255)
+  wardId      Int
+  districtId  Int
+  provinceId  Int
+}
+
+model product_inventory {
+  createdAt BigInt? @db.BigInt
+  updatedAt BigInt? @db.BigInt
+  id        Int     @id @default(autoincrement())
+  productId Int
+  quantity  Int     @default(0)
+  itemId    Int?
+
+  productInfo product? @relation(fields: [productId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([productId], map: "productInventory_productId_key")
+}
+
+model product_inventory_log {
+  createdAt       BigInt?             @db.BigInt
+  updatedAt       BigInt?             @db.BigInt
+  id              Int                 @id @default(autoincrement())
+  productId       Int
+  changeAmount    Int // Số lượng thay đổi (vd -1 or 1)
+  actionType      InventoryActionEnum // Loại hành động (nhập, xuất, điều chỉnh)
+  note            String?             @db.VarChar(255) // Ghi chú (tùy chọn)
+  currentQuantity Int // Số lượng hiện có sau thay đổi
+  userId          Int?
+
+  productInfo product? @relation(fields: [productId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([productId], map: "idx_product_id")
+}
+
+enum InventoryActionEnum {
+  import // Nhập hàng
+  export // Xuất hàng
+  adjust // Điều chỉnh
+}
+
+model StoreFollow {
+  createdAt  BigInt? @db.BigInt
+  updatedAt  BigInt? @db.BigInt
+  id         Int     @id @default(autoincrement())
+  customerId Int?
+  storeId    Int?
+
+  @@map("storefollow")
+}
+
+model flashsale {
+  createdAt BigInt?           @db.BigInt
+  updatedAt BigInt?           @db.BigInt
+  id        Int               @id @default(autoincrement())
+  name      String?
+  startDate BigInt
+  endDate   BigInt
+  isActive  Boolean?
+  type      typeEnumFlashsale
+  typeIds   Json?             @default("[]") @db.Json
+}
+
+enum typeEnumFlashsale {
+  voucher
+  product
+}
+
+model rate {
+  createdAt     Int?
+  updatedAt     Int?
+  id            Int          @id @default(autoincrement())
+  orderId       Int?
+  star          Int
+  comment       String?      @db.VarChar(255)
+  customerId    Int
+  images        Json?        @default("[]") @db.Json
+  videos        Json?        @default("[]") @db.Json
+  name          String?      @db.VarChar(255)
+  itemId        Int?
+  productTypeId Int?
+  storeId       Int?
+  isActive      Boolean?     @default(true)
+  productInfo   productType? @relation(fields: [productTypeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model brand {
+  createdAt   BigInt?      @db.BigInt
+  updatedAt   BigInt?      @db.BigInt
+  id          Int          @id @default(autoincrement())
+  name        String       @db.VarChar(255)
+  image       String?      @db.VarChar(255)
+  isActive    Boolean?     @default(true)
+  sequence    Int?
+  isHot       Boolean?     @default(false)
+  hotSequence Int?
+  description String?      @db.Text
+}
+
+model categoryStore {
+  createdAt   BigInt?  @db.BigInt
+  updatedAt   BigInt?  @db.BigInt
+  id          Int      @id @default(autoincrement())
+  storeId     Int
+  name        String   @db.VarChar(255)
+  description String?  @db.VarChar(255)
+  image       String?  @db.VarChar(255)
+  isActive    Boolean? @default(true)
+
+  @@map("categoryStore")
+}

@@ -1,0 +1,387 @@
+model referral {
+  id                 BigInt @id @default(autoincrement())
+  referrerCustomerId Int
+  referredCustomerId Int    @unique
+  inviteCode         String @db.VarChar(255)
+  createdAt          BigInt? @db.BigInt
+  updatedAt          BigInt? @db.BigInt
+
+  @@index([referrerCustomerId])
+}
+
+model referralReparentAudit {
+  id          BigInt @id @default(autoincrement())
+  adminUserId Int?
+  reason      String @db.VarChar(500)
+  changes     Json   @db.Json
+  createdAt   BigInt @db.BigInt
+
+  @@index([createdAt(sort: Desc)])
+}
+
+model commissionPolicy {
+  id                          Int      @id @default(autoincrement())
+  version                     Int      @unique
+  name                        String?  @db.VarChar(255)
+  status                      String   @default("draft") @db.VarChar(32)
+  effectiveFrom               BigInt   @db.BigInt
+  effectiveTo                 BigInt?  @db.BigInt
+  directCommissionRateBps     Int
+  directConsumptionPointRateBps Int    @default(0)
+  accumulationRevenueRateBps  Int
+  accumulationIncomeRateBps   Int
+  accumulationBelow50MRateBps Int      @default(2000)
+  accumulationFrom50MRateBps  Int      @default(8000)
+  smallBranchRateBps          Int
+  smallBranchWeeklyLimit      BigInt   @db.BigInt
+  positiveIncomeRateBps       Int
+  positiveRepurchaseAmount    BigInt   @db.BigInt
+  positiveUplineRewardRateBps Int
+  resonanceRateBps            Int
+  resonanceMinimumOrderAmount BigInt   @db.BigInt
+  createdAt                   BigInt?  @db.BigInt
+  updatedAt                   BigInt?  @db.BigInt
+  agencyTiers                 commissionAgencyTier[]
+
+  @@index([status, effectiveFrom, effectiveTo])
+}
+
+model commissionAgencyTier {
+  id                         Int              @id @default(autoincrement())
+  policyId                   Int
+  level                      Int
+  name                       String           @db.VarChar(255)
+  personalRevenueRequired    BigInt           @db.BigInt
+  smallBranchRevenueRequired BigInt           @db.BigInt
+  systemRevenueRateBps       Int
+  sameTierRateBps            Int
+  createdAt                  BigInt?          @db.BigInt
+  updatedAt                  BigInt?          @db.BigInt
+  policy                     commissionPolicy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+
+  @@unique([policyId, level])
+}
+
+model commissionRun {
+  id               BigInt  @id @default(autoincrement())
+  calculationDate  String  @unique @db.VarChar(10)
+  status           String  @default("pending") @db.VarChar(32)
+  policyId         Int?
+  policyVersion    Int?
+  systemRevenue    BigInt? @db.BigInt
+  requestSnapshot  Json?   @db.Json
+  responseSnapshot Json?   @db.Json
+  errorMessage     String? @db.Text
+  startedAt        BigInt? @db.BigInt
+  completedAt      BigInt? @db.BigInt
+  createdAt        BigInt? @db.BigInt
+  updatedAt        BigInt? @db.BigInt
+}
+
+// Ảnh chụp đầu ngày và kết quả cộng dồn dùng để tính lại Mục 1, 3-7 ngay
+// khi từng đơn hoàn tất. Mỗi ngày chỉ có một bản ghi và được khóa khi xử lý.
+model commissionRealtimeRun {
+  id               BigInt  @id @default(autoincrement())
+  calculationDate  String  @unique @db.VarChar(10)
+  status           String  @default("pending") @db.VarChar(32)
+  policyId         Int?
+  policyVersion    Int?
+  requestSnapshot  Json?   @db.Json
+  responseSnapshot Json?   @db.Json
+  errorMessage     String? @db.Text
+  lastOrderCompletedAt BigInt? @db.BigInt
+  startedAt        BigInt? @db.BigInt
+  completedAt      BigInt? @db.BigInt
+  createdAt        BigInt? @db.BigInt
+  updatedAt        BigInt? @db.BigInt
+}
+
+// Tiền Mục 2 đã được giữ ngay khi hoa hồng phát sinh nhưng chỉ ghi nợ thật
+// lúc cron 07:00 ngày hôm sau hoàn tất.
+model commissionIncomeReserveDaily {
+  id               BigInt  @id @default(autoincrement())
+  calculationDate  String  @db.VarChar(10)
+  customerId       Int
+  grossIncome      BigInt  @default(0) @db.BigInt
+  reservedAmount   BigInt  @default(0) @db.BigInt
+  settledAmount    BigInt  @default(0) @db.BigInt
+  status           String  @default("pending") @db.VarChar(32)
+  settledRunId     BigInt?
+  createdAt        BigInt? @db.BigInt
+  updatedAt        BigInt? @db.BigInt
+
+  @@unique([calculationDate, customerId])
+  @@index([customerId, status])
+  @@index([calculationDate, status])
+}
+
+model commissionTransaction {
+  id               BigInt  @id @default(autoincrement())
+  idempotencyKey   String  @unique @db.VarChar(255)
+  runId            BigInt?
+  calculationDate  String  @db.VarChar(10)
+  type             String  @db.VarChar(64)
+  direction        String  @db.VarChar(16)
+  customerId       Int
+  sourceCustomerId Int?
+  sourceOrderId    BigInt?
+  rateBps          Int?
+  grossAmount      BigInt  @default(0) @db.BigInt
+  deductionAmount  BigInt  @default(0) @db.BigInt
+  netAmount        BigInt  @default(0) @db.BigInt
+  amount           BigInt  @db.BigInt
+  metadata         Json?   @default("{}") @db.Json
+  createdAt        BigInt  @db.BigInt
+
+  @@index([runId])
+  @@index([customerId, calculationDate])
+  @@index([customerId, createdAt])
+  @@index([type, calculationDate])
+}
+
+// Số dư tiền hoa hồng theo nguồn thưởng và ví tổng có thể rút.
+// Tiền mặt đồng bộ từ commissionTransaction; hạn mức Mục 2 đồng bộ từ bản ghi
+// hạn mức theo đơn hoặc hạn mức admin cấp, trong cùng transaction DB.
+model commissionWallet {
+  customerId Int
+  walletType String @db.VarChar(64)
+  balance BigInt @default(0) @db.BigInt
+  reservedAmount BigInt @default(0) @db.BigInt
+  // Chỉ dùng cho ví accumulation: tổng hạn mức và tổng đã nhận, không phải
+  // số dư tiền còn rút được. Số dư rút vẫn là balance - reservedAmount.
+  entitlementAmount BigInt @default(0) @db.BigInt
+  receivedAmount BigInt @default(0) @db.BigInt
+  updatedAt BigInt @db.BigInt
+
+  @@id([customerId, walletType])
+}
+
+// Sổ cái điểm tiêu dùng. Điểm chỉ dùng để thanh toán sản phẩm, không thể rút
+// và không được cộng vào thu nhập tiền mặt của các Mục 2-7.
+model consumptionPointTransaction {
+  id               BigInt @id @default(autoincrement())
+  idempotencyKey   String @unique @db.VarChar(255)
+  calculationDate  String @db.VarChar(10)
+  type             String @db.VarChar(64)
+  direction        String @db.VarChar(16)
+  customerId       Int
+  sourceCustomerId Int?
+  sourceOrderId    BigInt?
+  policyId         Int?
+  policyVersion    Int?
+  rateBps          Int?
+  amount           BigInt @db.BigInt
+  metadata         Json?  @default("{}") @db.Json
+  createdAt        BigInt @db.BigInt
+
+  @@index([customerId, createdAt])
+  @@index([customerId, calculationDate])
+  @@index([type, calculationDate])
+}
+
+// Điểm được giữ khi tạo đơn online để một số dư không thể dùng đồng thời cho
+// nhiều đơn. IPN thành công mới chuyển khoản giữ thành giao dịch trừ.
+model consumptionPointReservation {
+  id         BigInt @id @default(autoincrement())
+  orderId    Int    @unique
+  customerId Int
+  amount     BigInt @db.BigInt
+  status     String @default("pending") @db.VarChar(32)
+  createdAt  BigInt @db.BigInt
+  updatedAt  BigInt @db.BigInt
+
+  @@index([customerId, status])
+  @@index([status, createdAt])
+}
+
+// Giữ tiền hoa hồng cho đơn chờ thanh toán online. Khi thành công mới ghi nợ
+// commissionTransaction; khi thất bại thì giải phóng khoản giữ.
+model commissionWalletOrderReservation {
+  id         BigInt @id @default(autoincrement())
+  orderId    Int    @unique
+  customerId Int
+  amount     BigInt @db.BigInt
+  status     String @default("pending") @db.VarChar(32)
+  createdAt  BigInt @db.BigInt
+  updatedAt  BigInt @db.BigInt
+
+  @@index([customerId, status])
+  @@index([status, createdAt])
+}
+
+// Yêu cầu rút tiền được ghi nợ sổ hoa hồng ngay khi tạo.
+// Admin xác nhận chỉ chốt trạng thái; từ chối tạo bút toán hoàn tiền.
+model commissionWithdrawal {
+  id                BigInt  @id @default(autoincrement())
+  customerId        Int
+  bankName          String  @db.VarChar(255)
+  bankCode          String  @db.VarChar(64)
+  bankAccountNumber String  @db.VarChar(64)
+  phoneNumber       String  @db.VarChar(32)
+  amount            BigInt  @db.BigInt
+  // NULL tạm thời cho yêu cầu cũ trước khi chạy migration backfill.
+  taxPercent        Int?
+  receivedAmount    BigInt? @db.BigInt
+  status            String  @default("pending") @db.VarChar(32)
+  createdAt         BigInt? @db.BigInt
+  updatedAt         BigInt? @db.BigInt
+
+  @@index([customerId, createdAt])
+  @@index([status, createdAt])
+}
+
+model customerBankAccount {
+  id                Int      @id @default(autoincrement())
+  customerId        Int
+  bankName          String   @db.VarChar(255)
+  bankAccountNumber String   @db.VarChar(64)
+  bankCode          String   @db.VarChar(64)
+  isDefault         Boolean  @default(false)
+  createdAt         BigInt?  @db.BigInt
+  updatedAt         BigInt?  @db.BigInt
+  customer          customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@unique([customerId, bankCode, bankAccountNumber])
+  @@index([customerId])
+}
+
+model accumulationEntitlement {
+  id                 BigInt  @id @default(autoincrement())
+  customerId         Int
+  orderId            BigInt  @unique
+  groupName          String  @db.VarChar(64)
+  orderAmount        BigInt  @db.BigInt
+  multiplier         BigInt  @db.BigInt
+  maximumAmount      BigInt  @db.BigInt
+  receivedAmount     BigInt  @db.BigInt
+  remainingAmount    BigInt  @db.BigInt
+  entitlementVersion Int
+  completed          Boolean @default(false)
+  sourceCreatedAt    BigInt  @db.BigInt
+  createdAt          BigInt? @db.BigInt
+  updatedAt          BigInt? @db.BigInt
+
+  @@index([customerId, completed])
+}
+
+// Mục 2 - hạn mức admin cấp thủ công, chưa được cron phân phối ở giai đoạn này.
+// Tách khỏi đơn hàng thật để không tạo orderId giả hoặc doanh số giả.
+model accumulationManualEntitlement {
+  id              String  @id @db.Uuid
+  idempotencyKey  String  @unique @db.VarChar(255)
+  customerId      Int
+  groupName       String? @db.VarChar(64)
+  maximumAmount   BigInt  @db.BigInt
+  receivedAmount  BigInt  @default(0) @db.BigInt
+  remainingAmount BigInt  @db.BigInt
+  reason          String  @db.Text
+  adminUserId     Int?
+  createdAt       BigInt  @db.BigInt
+  updatedAt       BigInt  @db.BigInt
+
+  @@index([customerId, createdAt])
+}
+
+// Nhật ký admin sửa số tích sản đã nhận. Tiền mặt hoa hồng không thay đổi;
+// số đã nhận được phân bổ vào từng hạn mức đơn/manual trong cùng transaction.
+model accumulationReceivedAdjustment {
+  id          String @id @db.Uuid
+  requestId   String @unique @db.Uuid
+  customerId  Int
+  amount      BigInt @db.BigInt
+  allocations Json   @db.Json
+  adminUserId Int?
+  createdAt   BigInt @db.BigInt
+
+  @@index([customerId, createdAt])
+}
+
+model accumulationPoolDaily {
+  id                    BigInt @id @default(autoincrement())
+  runId                 BigInt
+  calculationDate       String @db.VarChar(10)
+  groupName             String @db.VarChar(64)
+  allocationRateBps     Int
+  availableAmount       BigInt @db.BigInt
+  distributedAmount     BigInt @db.BigInt
+  unallocatedAmount     BigInt @db.BigInt
+  eligibleCustomerCount Int
+  createdAt             BigInt? @db.BigInt
+
+  @@unique([calculationDate, groupName])
+  @@index([runId])
+}
+
+// Bút toán admin điều chỉnh quỹ Mục 2 trong ngày: dương cộng, âm trừ phần đã
+// cộng; cron ngày hôm sau lấy tổng thuần để chia cùng các nguồn quỹ khác.
+model accumulationPoolTopup {
+  id              String @id @db.Uuid
+  idempotencyKey  String @unique @db.VarChar(255)
+  calculationDate String @db.VarChar(10)
+  amount          BigInt @db.BigInt
+  reason          String @default("") @db.Text
+  adminUserId     Int?
+  createdAt       BigInt @db.BigInt
+
+  @@index([calculationDate, createdAt])
+}
+
+model positiveBalance {
+  customerId Int    @id
+  balance    BigInt @db.BigInt
+  updatedAt  BigInt @db.BigInt
+}
+
+model deferredCommissionIncome {
+  id               BigInt  @id @default(autoincrement())
+  idempotencyKey   String  @unique @db.VarChar(255)
+  sourceRunId      BigInt
+  consumedRunId    BigInt?
+  customerId       Int
+  sourceCustomerId Int?
+  sourceType       String  @db.VarChar(64)
+  amount           BigInt  @db.BigInt
+  availableDate    String  @db.VarChar(10)
+  createdAt        BigInt? @db.BigInt
+  consumedAt       BigInt? @db.BigInt
+
+  @@index([availableDate, consumedRunId])
+  @@index([customerId, availableDate])
+}
+
+model agencyQualificationDaily {
+  id                 BigInt @id @default(autoincrement())
+  runId              BigInt?
+  calculationDate    String @db.VarChar(10)
+  customerId         Int
+  tierLevel           Int
+  tierName            String @db.VarChar(255)
+  personalRevenue     BigInt @db.BigInt
+  smallBranchRevenue  BigInt @db.BigInt
+  systemRateBps       Int
+  sameTierRateBps     Int
+  createdAt           BigInt? @db.BigInt
+
+  @@unique([calculationDate, customerId])
+  @@index([runId])
+}
+
+model commissionRepurchase {
+  id               BigInt  @id @default(autoincrement())
+  idempotencyKey   String  @unique @db.VarChar(255)
+  runId            BigInt?
+  calculationDate  String  @db.VarChar(10)
+  customerId       Int
+  ruleType         String  @db.VarChar(32)
+  sequence         Int
+  amount           BigInt  @db.BigInt
+  status           String  @default("pending") @db.VarChar(32)
+  orderId          Int?
+  errorMessage     String? @db.Text
+  attempts         Int     @default(0)
+  createdAt        BigInt? @db.BigInt
+  updatedAt        BigInt? @db.BigInt
+
+  @@index([status, createdAt])
+  @@index([runId])
+}

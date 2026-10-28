@@ -1,0 +1,104 @@
+model item {
+  countRate    Int?     @default(0)
+  createdAt    BigInt?  @db.BigInt
+  updatedAt    BigInt?  @db.BigInt
+  id           Int      @id @default(autoincrement())
+  totalLike    Float?   @default(0)
+  avgRate      Float?   @default(0)
+  totalStar    Float?   @default(0)
+  oneStar      Float?   @default(0)
+  twoStar      Float?   @default(0)
+  threeStar    Float?   @default(0)
+  fourStar     Float?   @default(0)
+  fiveStar     Float?   @default(0)
+  total        Int      @default(0)
+  purchased    Int      @default(0)
+  itemGroupId  Int?     @default(0)
+  useQuantity  Boolean? @default(false)
+  totalComment Int?     @default(0)
+  viewVoucher  Int?     @default(0)
+  version      Int      @default(0)
+
+  // Indentify
+  type   ItemType?
+  typeId Int?
+}
+
+enum ItemType {
+  product
+  voucher
+  flashsale
+}
+
+model limiter {
+  createdAt        BigInt?  @db.BigInt
+  updatedAt        BigInt?  @db.BigInt
+  id               Int      @id @default(autoincrement())
+  voucherId        Int      @unique
+  voucher          voucher? @relation(fields: [voucherId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  limitProgram     Int      @default(-1)
+  limitUserProgram Int      @default(-1)
+  remaining        Int      @default(0)
+  purchased        Int      @default(0)
+}
+
+enum BlockType {
+  FLASHSALE
+  DEALHOT
+  MONOPOLY
+  FREE
+  CAMPAIGN
+  CUSTOM
+}
+
+model Block {
+  createdAt     BigInt?   @db.BigInt
+  updatedAt     BigInt?   @db.BigInt
+  id            Int       @id @default(autoincrement())
+  name          String?   @db.VarChar(255)
+  position      Int?
+  isActive      Boolean?  @default(true)
+  productIds    Json      @default("[]") @db.Json
+  pinProductIds Json      @default("[]") @db.Json
+  icon          String?   @db.VarChar(255)
+  images        Json?     @default("[]") @db.Json
+  type          BlockType
+  isIntegration Boolean   @default(false)
+  datasetId     Int       @default(0)
+  height        Int       @default(500)
+  limitUser     Int?
+
+  @@map("block")
+}
+
+model Dataset {
+  createdAt BigInt?     @db.BigInt
+  updatedAt BigInt?     @db.BigInt
+  id        Int         @id @default(autoincrement())
+  name      String?     @db.VarChar(255)
+  data      Json        @default("[]") @db.Json
+  type      DatasetType
+  isActive  Boolean?    @default(true)
+
+  @@map("dataset")
+}
+
+enum DatasetType {
+  BLACK_LIST
+  WHITE_LIST
+}
+
+model Collection {
+  createdAt       BigInt?  @db.BigInt
+  updatedAt       BigInt?  @db.BigInt
+  id              Int      @id @default(autoincrement())
+  name            String?  @db.VarChar(255)
+  position        Int?
+  isActive        Boolean? @default(true)
+  voucherIds      Json     @default("[]") @db.Json
+  image           String?  @db.VarChar(255)
+  discountPercent Int      @default(0)
+  icon            String?  @db.VarChar(255)
+
+  @@map("collection")
+}

@@ -1,0 +1,113 @@
+model customer {
+  tierId          Int?                  @default(1)
+  createdAt       BigInt?               @db.BigInt
+  updatedAt       BigInt?               @db.BigInt
+  id              Int                   @id @default(autoincrement())
+  name            String?               @db.VarChar(255)
+  username        String?               @db.VarChar(255)
+  phone           String?               @unique @db.VarChar(255)
+  facebookId      String?               @db.VarChar(255)
+  googleId        String?               @db.VarChar(255)
+  email           String?               @unique @db.VarChar(255)
+  birth           BigInt?
+  gender          CustomerGender?       @default(male)
+  address         String?               @db.VarChar(255)
+  avatar          String?               @db.VarChar(255)
+  contact         String?               @db.VarChar(255)
+  exchangeId      String?               @db.VarChar(255)
+  provinceId      Int?
+  districtId      Int?
+  wardId          Int?
+  inviteCode      String                @unique @db.VarChar(255)
+  salesRevenue    BigInt?               @db.BigInt
+  secure          String?               @db.VarChar(255)
+  countNotiUnRead Int                   @default(0)
+  merchantId      Int?
+  merchantRef     String?               @unique @db.VarChar(255)
+  mpoint          Int?
+  totalMpoint     Int?
+  codeCount       Int?                  @default(0)
+  isBlock         Boolean?              @default(false)
+  addresses       addressCustomer[]
+  bankAccounts    customerBankAccount[]
+  socketId        String?               @db.VarChar(50)
+  cccd            String?           @db.VarChar(20)
+  cccdFrontImage  String?           @db.VarChar(255)
+  cccdBackImage   String?           @db.VarChar(255)
+}
+
+enum CustomerGender {
+  male
+  female
+  other
+}
+
+model tier {
+  createdAt     BigInt? @db.BigInt
+  updatedAt     BigInt? @db.BigInt
+  id            Int     @id @default(autoincrement())
+  upgradePoint  Float?
+  name          String? @db.VarChar(255)
+  activeImage   String? @db.VarChar(255)
+  inactiveImage String? @db.VarChar(255)
+}
+
+model pointTransaction {
+  createdAt   BigInt?
+  updatedAt   BigInt?
+  id          Int                       @id @default(autoincrement())
+  orderId     Int
+  customerId  Int
+  exchangeId  String
+  ref         String?
+  amount      Int
+  description String?
+  balance     Float?
+  status      point_transaction_status? @default(processing)
+  error       String?
+  type        point_transaction_type?   @default(burn)
+
+  @@map("pointtransaction")
+}
+
+enum point_transaction_status {
+  processing
+  done
+  failed
+}
+
+enum point_transaction_type {
+  earn
+  burn
+  refund
+  refunded
+}
+
+model notification {
+  createdAt  Int?
+  updatedAt  Int?
+  id         Int                 @id @default(autoincrement())
+  customerId Int
+  title      String?
+  content    String?
+  status     NotificationStatus? @default(unread)
+}
+
+model policy {
+  createdAt    BigInt?  @db.BigInt
+  updatedAt    BigInt?  @db.BigInt
+  id           Int      @id @default(autoincrement())
+  name         String?  @db.VarChar(255)
+  description  String?  @db.Text
+  type         String?  @db.VarChar(255)
+  sequence     Int?
+  isActive     Boolean? @default(true)
+  urlUpload    String?  @db.Text
+  urlUploadApp String?  @db.Text
+  sequenceType Int?
+}
+
+enum NotificationStatus {
+  unread
+  read
+}

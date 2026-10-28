@@ -1,0 +1,11 @@
+-- AlterTable
+ALTER TABLE "campaign" ALTER COLUMN "startDate" SET DATA TYPE BIGINT,
+ALTER COLUMN "endDate" SET DATA TYPE BIGINT;
+
+-- AlterTable
+ALTER TABLE "coderequest" ALTER COLUMN "expireCodeDiscount" SET DATA TYPE BIGINT,
+ALTER COLUMN "startTimeCanEnterCode" SET DATA TYPE BIGINT;
+
+-- AlterTable
+ALTER TABLE "limiter" ALTER COLUMN "fromDate" SET DATA TYPE BIGINT,
+ALTER COLUMN "toDate" SET DATA TYPE BIGINT;

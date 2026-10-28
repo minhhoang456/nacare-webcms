@@ -1,0 +1,216 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["omitApi", "metrics", "driverAdapters", "prismaSchemaFolder"]
+}
+
+// generator docs {
+//   provider = "node node_modules/prisma-docs-generator"
+// }
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model partner {
+  createdAt                  BigInt?  @db.BigInt
+  updatedAt                  BigInt?  @db.BigInt
+  id                         Int      @id @default(autoincrement())
+  name                       String
+  slogan                     String?
+  logo                       String?
+  detail                     String?
+  website                    String?
+  phone                      String?
+  email                      String?
+  alt                        String?  @default("")
+  order                      Int?
+  sourceId                   Int?
+  partnerId                  String?
+  isActive                   Boolean? @default(true)
+  hotSequence                Int?     @default(0)
+  billPointPercent           Float?   @default(0)
+  rulePointType              String? // isIn : exchange, earn, both
+  haveVoucherDefault         Boolean? @default(false)
+  voucherId                  Int?
+  categoryName               String?
+  coverImage                 String?
+  sourceName                 String?
+  images                     Json?    @default("[]") @db.Json
+  providerId                 Int?
+  isMonopoly                 Boolean? @default(false)
+  deliciousFoodProductTypeId Json?    @default("[]") @db.Json
+  mapVoucherPartner          Int?     @default(0)
+}
+
+model campaign {
+  createdAt BigInt?  @db.BigInt
+  updatedAt BigInt?  @db.BigInt
+  id        Int      @id @default(autoincrement())
+  name      String?
+  startDate BigInt
+  endDate   BigInt
+  active    Boolean? @default(true)
+  // createdBy   user     @relation(fields: [createdById], references: [id])
+  createdBy Int
+  itemId    Int
+  thumbnail String?
+  isShow    Boolean? @default(true)
+  countdown Boolean? @default(true)
+  type      String? // isIn: ["voucher", "product"]
+  sequence  Int?
+  clientIds Json?    @default("[]") @db.Json
+  gender    String?
+  // user      user?    @relation(fields: [userId], references: [id])
+  // userId    Int?
+}
+
+model home {
+  createdAt   BigInt?  @db.BigInt
+  updatedAt   BigInt?  @db.BigInt
+  id          Int      @id @default(autoincrement())
+  title       String?  @db.VarChar(255)
+  type        String?  @db.VarChar(255)
+  single      Boolean? @default(true)
+  query       String?  @default("[]")
+  isActive    Boolean? @default(true)
+  orderBy     String?  @default("[]")
+  skip        Int?     @default(0)
+  limit       Int?     @default(0)
+  index       Int?     @default(0)
+  location    String?
+  valueConfig String?
+}
+
+model banner {
+  vPosition  String?  @map("position") @db.VarChar(255)
+  sequence   Int?
+  createdAt  BigInt?  @db.BigInt
+  updatedAt  BigInt?  @db.BigInt
+  id         Int      @id @default(autoincrement())
+  image      String?  @db.VarChar(255)
+  isActive   Boolean?
+  action     String?  @db.VarChar(255)
+  actionData String?  @db.VarChar(255)
+  dataItem   Json?    @default("[]") @db.Json
+  app        String?  @db.VarChar(255)
+}
+
+model merchant {
+  createdAt    BigInt?  @db.BigInt
+  updatedAt    BigInt?  @db.BigInt
+  id           Int      @id @default(autoincrement())
+  name         String
+  secretKey    String?
+  restrictIp   String?
+  isActive     Boolean? @default(false)
+  webhook      String?
+  keyCheckSum  String?
+  merchantCode String?
+  bundleId     String?
+}
+
+model tag {
+  createdAt    BigInt?   @db.BigInt
+  updatedAt    BigInt?   @db.BigInt
+  id           Int       @id @default(autoincrement())
+  name         String?   @db.VarChar(255)
+  description  String?   @db.VarChar(255)
+  userId       Int?
+  typeId       Int
+  typesTagInfo typestag? @relation(fields: [typeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model typestag {
+  createdAt   BigInt? @db.BigInt
+  updatedAt   BigInt? @db.BigInt
+  id          Int     @id @default(autoincrement())
+  name        String? @db.VarChar(255)
+  description String? @db.VarChar(255)
+  required    Boolean @default(false)
+  tag         tag[]
+}
+
+model approvemember {
+  createdAt  BigInt? @db.BigInt
+  updatedAt  BigInt? @db.BigInt
+  id         Int     @id @default(autoincrement())
+  memberId   Int?
+  voucherIds Json?   @default("[]") @db.Json
+  productIds Json?   @default("[]") @db.Json
+}
+
+model trackingsc {
+  id       Int    @id @default(autoincrement())
+  targetId BigInt // Timestamp in milliseconds (start of day)
+
+  // Home related actions
+  vHomeSearch        Int @default(0)
+  vHomeCategory      Int @default(0)
+  vHomeBlockMore     Int @default(0)
+  vHomeDetailProduct Int @default(0)
+  vHomeBanner        Int @default(0)
+  vHomePartner       Int @default(0)
+  vHomePartnerDetail Int @default(0)
+
+  // Product related actions
+  vProductStore       Int @default(0)
+  vProductStoreDetail Int @default(0)
+  vProductDetail      Int @default(0)
+  vProductAddCart     Int @default(0)
+
+  // Checkout related actions
+  vCheckoutAddress           Int @default(0)
+  vCheckoutEditCart          Int @default(0)
+  vCheckoutChooseShipService Int @default(0)
+  vCheckoutViewVoucher       Int @default(0)
+  vCheckoutChooseVoucher     Int @default(0)
+  vCheckoutConfirmOrder      Int @default(0)
+
+  // Order related actions
+  vOrderDetail Int @default(0)
+  vOrderCancel Int @default(0)
+
+  // Other actions
+  vNotification Int @default(0)
+  vRatingOrder  Int @default(0)
+  vReorder      Int @default(0)
+
+  @@index([targetId])
+}
+
+model popup {
+  createdAt  BigInt?  @db.BigInt
+  updatedAt  BigInt?  @db.BigInt
+  id         Int      @id @default(autoincrement())
+  name       String?
+  image      String?
+  isActive   Boolean? @default(true)
+  startDate  BigInt
+  endDate    BigInt
+  action     String?  @db.VarChar(255)
+  actionData String?  @db.VarChar(255)
+}
+
+model socialOrganizationsFeedbacks {
+  createdAt           BigInt? @db.BigInt
+  updatedAt           BigInt? @db.BigInt
+  id                  Int     @id @default(autoincrement())
+  organizationName    String
+  establishmentNumber String
+  content             String
+}
+
+model otpLog {
+  id          Int     @id @default(autoincrement())
+  phone       String
+  otp         String
+  status      String  @default("pending") // isIn: ["pending", "sent", "failed"]
+  createdAt   BigInt? @db.BigInt
+  updatedAt   BigInt? @db.BigInt
+  requestId   String?
+  messageId   String?
+  messageErr  Json?   @default("{}") @db.Json
+  type        String
+  messageBody String?
+}

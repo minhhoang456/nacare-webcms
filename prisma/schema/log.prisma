@@ -1,0 +1,59 @@
+model actionlog {
+    createdAt BigInt? @db.BigInt
+    updatedAt BigInt? @db.BigInt
+    id        Int     @id @default(autoincrement())
+    model     String? @db.VarChar(255)
+    action    String? @db.VarChar(255)
+    data      Json?   @db.Json
+    userId    Int?
+    role      Int?
+    ip        String? @db.VarChar(255)
+    ip2       String? @db.VarChar(255)
+}
+
+model fileupload {
+    createdAt      BigInt?           @db.BigInt
+    updatedAt      BigInt?           @db.BigInt
+    id             Int               @id @default(autoincrement())
+    fileName       String?           @db.VarChar(255)
+    fileType       String?           @db.VarChar(255)
+    status         StatusFileUpload?
+    fullUrl        String?           @db.VarChar(255)
+    url            String?           @db.VarChar(255)
+    serverFileName String?           @db.VarChar(255)
+    serverFileDir  String?           @db.VarChar(255)
+    user           Int?
+    server1        Boolean?          @default(false)
+    server2        Boolean?          @default(false)
+}
+
+enum StatusFileUpload {
+    finished
+    fail
+}
+
+model outgoing {
+    createdAt BigInt? @db.BigInt
+    updatedAt BigInt? @db.BigInt
+    id        Int     @id @default(autoincrement())
+    host      String? @db.Text
+    req       String? @db.Text
+    res       String? @db.Text
+    dur       Float?
+    api       String? @db.VarChar(255)
+    error     Float?
+}
+
+model requestlog {
+    createdAt  BigInt? @db.BigInt
+    updatedAt  BigInt? @db.BigInt
+    id         Int     @id @default(autoincrement())
+    api        String? @db.VarChar(255)
+    merchantId Int?
+    request    String? @db.Text
+    response   String? @db.Text
+    code       Int?
+    header     String? @db.Text
+    dur        Int?
+    ip         String? @db.VarChar(255)
+}

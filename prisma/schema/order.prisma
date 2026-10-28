@@ -1,0 +1,294 @@
+model orderitem {
+    note                   String?          @db.VarChar(255)
+    amountAccumulatePoints Int?             @default(0)
+    itemPrice              Int?             @default(0)
+    salePrice              Int?             @default(0)
+    createdAt              BigInt?          @db.BigInt
+    updatedAt              BigInt?          @db.BigInt
+    id                     Int              @id @default(autoincrement())
+    orderId                Float?
+    customerId             Float?
+    type                   OrderItemType?
+    typeId                 Float?
+    itemId                 Float?
+    images                 Json?            @db.Json
+    name                   String?          @db.VarChar(255)
+    quantity               Float?
+    totalPrice             Float?           @default(0)
+    shippPrice             Float?           @default(0)
+    status                 OrderItemStatus?
+    cancelReason           String?          @db.VarChar(255)
+    point                  Float?
+    cash                   Float?
+    storeId                Float?
+    productTypeId          Int?
+    typeItem               String?          @db.VarChar(255)
+    discount               Float?
+    orderShipId            Int?
+    attributeValues        String?          @db.VarChar(255)
+    mexchangeId            String?
+    flashSaleVoucherId     Int?
+    payment                String?          @db.VarChar(255)
+    flashSaleProductId     Int?
+    toppings               Json?            @default("[]")
+    toppingsPrice          Float?
+    totalWeight            Float?
+}
+
+enum OrderItemType {
+    product
+    voucher
+}
+
+enum OrderItemStatus {
+    pending
+    processing
+    paid
+    wait_for_confirmation
+    wait_for_pickup
+    shipping
+    completed
+    canceled
+    refund
+    refunded
+}
+
+model order {
+    methodPayment         OrderMethodPaymentEnum?
+    discount              Int?
+    totalAccumulatePoints Int?                    @default(0)
+    discountCode          String?                 @db.VarChar(255)
+    discountVoucherId     Int?
+    note                  String?                 @db.VarChar(255)
+    image                 String?                 @db.VarChar(255)
+    createdAt             BigInt?                 @db.BigInt
+    updatedAt             BigInt?                 @db.BigInt
+    id                    Int                     @id @default(autoincrement())
+    totalMoney            Float?
+    totalToppingsPrice    Float?
+    customerId            Float
+    receiveName           String?                 @db.VarChar(255)
+    receivePhone          String?                 @db.VarChar(255)
+    receiveEmail          String?                 @db.VarChar(255)
+    provinceId            Int?
+    districtId            Int?
+    wardId                Int?
+    address               String?                 @db.VarChar(255)
+    shipMoney             Float?
+    paymentStatus         OrderPaymentStatusEnum? @default(pending)
+    moneyPaid             Float?
+    pointPaid             Float?
+    consumptionPointUsed BigInt?                 @default(0) @db.BigInt
+    commissionWalletUsed BigInt?                 @default(0) @db.BigInt
+    cancelReason          String?                 @db.VarChar(255)
+    linkReturnUrl         String?                 @db.VarChar(255)
+    transporterOrder      String?                 @db.VarChar(255)
+    shipOrderCodeId       String?                 @db.VarChar(255)
+    typeItem              String?                 @db.VarChar(255)
+    transactionId         String?                 @db.VarChar(255)
+    mexchangeOrderId      String?
+    itemCount             Int?
+    orderPlace            String?
+    sourceOrder           String?                 @default("normal")
+    merchantId            Int?
+    typeOrder             String?                 @default("customer")
+    flashSaleVoucherId    Int?
+    isFeedback            Boolean?                @default(false)
+    flashSaleProductId    Int?
+    canCancelOrder        Boolean?                @default(true)
+    orderUniqueId         String?                 @default("")
+    returnForOrderId      Int?
+    timeCompletedOrder    BigInt?                 @db.BigInt
+    requestId             String?                 @default("")
+    isMultiStore          Boolean?                @default(false)
+}
+
+enum OrderPaymentStatusEnum {
+    pending
+    processing
+    wait_for_confirmation
+    wait_for_pickup
+    comfirmed
+    shipping
+    completed
+    canceled
+    refund
+    refunded
+    returnOrder
+}
+
+enum OrderMethodPaymentEnum {
+    cod
+    online
+    point
+}
+
+model ordership {
+    createdAt                  BigInt?            @db.BigInt
+    updatedAt                  BigInt?            @db.BigInt
+    id                         Int                @id @unique(map: "id") @default(autoincrement())
+    orderId                    Int
+    customerId                 Float
+    totalMoney                 Float?
+    moneyCash                  Float?
+    totalToppingsPrice         Float?             @default(0)
+    receiveName                String?            @db.VarChar(255)
+    receivePhone               String?            @db.VarChar(255)
+    receiveEmail               String?            @db.VarChar(255)
+    receiveLat                 String?            @db.VarChar(50)
+    receiveLng                 String?            @db.VarChar(50)
+    receiveProvince            String?            @db.VarChar(255)
+    receiveDistrict            String?            @db.VarChar(255)
+    receiveWard                String?            @db.VarChar(255)
+    receiveProvinceId          Int?
+    receiveDistrictId          Int?
+    receiveWardId              Int?
+    receiveAddress             String?            @db.VarChar(255)
+    deliveryName               String?            @db.VarChar(255)
+    deliveryPhone              String?            @db.VarChar(255)
+    deliveryEmail              String?            @db.VarChar(255)
+    deliveryProvince           String?            @db.VarChar(255)
+    deliveryDistrict           String?            @db.VarChar(255)
+    deliveryWard               String?            @db.VarChar(255)
+    deliveryAddress            String?            @db.VarChar(255)
+    totalWeight                Float?
+    shipServiceCode            String?
+    shipOrderCodeId            String?
+    shipStatus                 String?
+    shipMsg                    Json?              @default("[]")
+    shipMoney                  Float?
+    shipCarrier                String?
+    shipCarrierImage           String?
+    shipServiceName            String?
+    linkFulfillmentPartnerShip String?
+    cancelReason               String?
+    discountInfo               Json?              @default("{}")
+    discountVoucherId          Int?
+    discountCode               String?
+    discount                   Float?
+    mpoint                     Float?
+    consumptionPointUsed      BigInt?            @default(0) @db.BigInt
+    commissionWalletUsed      BigInt?            @default(0) @db.BigInt
+    note                       String?
+    paymentMethodShip          String
+    status                     String?            @default("pending")
+    storeId                    Int?
+    transporterOrder           String?
+    totalAccumulatePoints      Float?
+    orderItemInfos             Json?              @default("[]")
+    typeItem                   OrderShipTypeItem? @default(product)
+    moneyShipStore             Float?             @default(0)
+    useShipStore               Boolean?           @default(false)
+    storeInfo                  Json?              @default("{}")
+    merchantId                 Int?               @default(0)
+    orderPlace                 String?            @default("shipping")
+    useStoreServiceShip        Boolean?           @default(false)
+    image                      String?            @default("")
+    refundStatus               Int?               @default(0)
+    isFeedback                 Boolean?           @default(false)
+    discountShip               Int?               @default(0)
+    typeShip                   OrderShipTypeShip? @default(mediaoneship)
+    mexchangeOrderShipId       String?            @default("")
+    mexchangeOrderId           String?            @default("")
+    paymentTransactionId       String?            @default("")
+    pointTransactionId         String?            @default("")
+    orderUniqueId              String?            @default("")
+    returnForOrderId           Int?               @default(0)
+    timeCompletedOrder         BigInt?            @db.BigInt
+
+    @@map("ordership")
+}
+
+enum OrderShipTypeItem {
+    product
+    voucher
+    returnOrder
+}
+
+enum OrderShipTypeShip {
+    mediaoneship
+    none
+}
+
+model paymentTransaction {
+    createdAt            BigInt?                          @db.BigInt
+    updatedAt            BigInt?                          @db.BigInt
+    id                   Int                              @id @default(autoincrement())
+    orderId              Int
+    totalAmmount         Float?
+    customer             Int
+    paymentMethod        PaymentMethodEnum?
+    bankCode             String?
+    code                 String?
+    partner              String?
+    status               PaymentStatusEnum?
+    ipn                  Json?                            @default("{}") @db.Json
+    ipnAt                BigInt?
+    error_code           String?
+    transactionId        String?
+    zlTransactionId      BigInt?
+    refundTransId        String?
+    timeout              BigInt?
+    processTimeoutStatus PaymentProcessTimeoutStatusEnum? @default(none)
+    lastQueryAt          BigInt?
+    lastQuery            Json?                            @default("{}") @db.Json
+    retry                Int?                             @default(0)
+
+    @@map("payment_transaction")
+}
+
+enum PaymentProcessTimeoutStatusEnum {
+    none
+    processing
+    done
+}
+
+enum PaymentMethodEnum {
+    pay
+    refund
+}
+
+enum PaymentStatusEnum {
+    processing
+    success
+    failed
+    unfinish
+    error
+    scam
+    refund
+    refunded
+    refund_err
+    cheat
+}
+
+model OrderReturns {
+    createdAt          BigInt?               @db.BigInt
+    updatedAt          BigInt?               @db.BigInt
+    id                 Int                   @id @default(autoincrement())
+    orderId            Int
+    title              String
+    description        String
+    customerId         Int
+    storeInfo          Json?
+    images             Json?
+    totalProductPrice  Float
+    totalDiscountPrice Float
+    totalMoneyReturn   Float
+    status             OrderReturnStatusEnum @default(PENDING)
+    returnMessages     Json?                 @default("[]")
+    cancelRejectReason String?
+    orderItemInfos     Json?
+
+    @@map("order_returns")
+}
+
+enum OrderReturnStatusEnum {
+    PENDING
+    DISPUTE
+    BACK_TO_STORE
+    CHECK_PRODUCT
+    DISPUTE_IN_CHECKING
+    WAITING_MONEY_RETURN
+    COMPLETED
+    REJECTED
+}

@@ -1,0 +1,47 @@
+model province {
+  createdAt BigInt? @db.BigInt
+  updatedAt BigInt? @db.BigInt
+  id        Int     @id @default(autoincrement())
+  name      String? @db.VarChar(255)
+  type      String? @db.VarChar(255)
+  sortIndex Int?
+}
+
+model district {
+  createdAt BigInt? @db.BigInt
+  updatedAt BigInt? @db.BigInt
+  id        Int     @id @default(autoincrement())
+  name      String? @db.VarChar(255)
+  type      String? @db.VarChar(255)
+  province  Int?
+}
+
+model ward {
+  createdAt BigInt? @db.BigInt
+  updatedAt BigInt? @db.BigInt
+  id        Int     @id @default(autoincrement())
+  name      String? @db.VarChar(255)
+  type      String? @db.VarChar(255)
+  district  Int?
+}
+
+model addressCustomer {
+  createdAt  Int?
+  updatedAt  Int?
+  id         Int      @id @default(autoincrement())
+  customerId Int
+  name       String?
+  phone      String?
+  address    String?
+  wardId     Int?
+  districtId Int?
+  provinceId Int?
+  isDefault  Boolean? @default(true)
+  type       String?  @default("home")
+  latitude   Float?
+  longitude  Float?
+  note       String?
+  customer   customer @relation(fields: [customerId], references: [id])
+
+  @@index([customerId])
+}

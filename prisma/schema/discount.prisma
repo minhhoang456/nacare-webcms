@@ -1,0 +1,50 @@
+model discount {
+  createdAt        BigInt?       @db.BigInt
+  updatedAt        BigInt?       @db.BigInt
+  id               Int           @id @default(autoincrement())
+  code             String?       @db.VarChar(255)
+  type             String?       @db.VarChar(255) // isIn: ["money", "percent"]
+  minValueOfOrder  Int?          @default(0)
+  maxValueOfOrder  Int?          @default(0)
+  maxValueDiscount Int?          @default(0)
+  value            Int?          @default(0)
+  customerId       Int?
+  used             Boolean?      @default(false)
+  startDate        BigInt?       @default(0)
+  expiredAt        BigInt?
+  usedAt           BigInt?
+  codeRequestId    Int?
+  onlyUsed         onlyUsedType? @default(all)
+
+  // 0 :all, 1: shop, 2: product/voucher
+  storeId Int?    @default(0) //model shop
+  name    String? @db.VarChar(255)
+
+  productIds       Json?    @default("[]") @db.Json
+  voucherIds       Json?    @default("[]") @db.Json
+  isDiscountPublic Boolean? @default(false)
+}
+
+enum onlyUsedType {
+  all
+  store
+  voucher
+}
+
+model discountpublictransaction {
+  createdAt  BigInt? @db.BigInt
+  updatedAt  BigInt? @db.BigInt
+  id         Int     @id @default(autoincrement())
+  customerId Int?
+  code       String? @db.VarChar(255)
+  countUsed  Int?    @default(1)
+}
+
+model discountpublic {
+  createdAt        BigInt? @db.BigInt
+  updatedAt        BigInt? @db.BigInt
+  id               Int     @id @default(autoincrement())
+  limitUserProgram Int?    @default(-1)
+  code             String? @db.VarChar(255)
+  limitProgram     Int?    @default(-1)
+}

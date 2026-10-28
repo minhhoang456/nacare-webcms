@@ -1,0 +1,33 @@
+{
+  "extends": "fastify-tsconfig",
+  "compilerOptions": {
+    "target": "es2017",
+    "module": "commonjs",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "noImplicitThis": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      // "@root" : ["*"],
+      "@root/*": ["*"],
+      "@src/*": ["src/*"]
+    },
+    "removeComments": true
+  },
+  "ts-node": {
+    "files": true
+  },
+  "exclude": ["node_modules"],
+  "include": ["./src/**/*.ts", "src/**/*.d.ts", "typings.d.ts"]
+}

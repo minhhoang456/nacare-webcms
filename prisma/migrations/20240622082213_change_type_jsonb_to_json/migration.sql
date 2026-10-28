@@ -1,0 +1,93 @@
+-- AlterTable
+ALTER TABLE "actionlog" ALTER COLUMN "data" SET DATA TYPE JSON;
+
+-- AlterTable
+ALTER TABLE "approvemember" ALTER COLUMN "voucherIds" SET DATA TYPE JSON,
+ALTER COLUMN "productIds" SET DATA TYPE JSON;
+
+-- AlterTable
+ALTER TABLE "banner" ALTER COLUMN "dataItem" SET DATA TYPE JSON;
+
+-- AlterTable
+ALTER TABLE "block" ALTER COLUMN "voucherIds" SET DATA TYPE JSON,
+ALTER COLUMN "pinVoucherIds" SET DATA TYPE JSON;
+
+-- AlterTable
+ALTER TABLE "campaign" ALTER COLUMN "clientIds" SET DATA TYPE JSON;
+
+-- AlterTable
+ALTER TABLE "category" ALTER COLUMN "merchantIds" SET DATA TYPE JSON;
+
+-- AlterTable
+ALTER TABLE "code" ALTER COLUMN "imagesVoucher" SET DATA TYPE JSON,
+ALTER COLUMN "productIdsOfVoucher" SET DATA TYPE JSON;
+
+-- AlterTable
+ALTER TABLE "coderequest" ALTER COLUMN "productIds" SET DATA TYPE JSON;
+
+-- AlterTable
+ALTER TABLE "collection" ALTER COLUMN "voucherIds" SET DATA TYPE JSON;
+
+-- AlterTable
+ALTER TABLE "dataset" ALTER COLUMN "data" SET DATA TYPE JSON;
+
+-- AlterTable
+ALTER TABLE "discount" ALTER COLUMN "productIds" SET DATA TYPE JSON,
+ALTER COLUMN "voucherIds" SET DATA TYPE JSON;
+
+-- AlterTable
+ALTER TABLE "flashsale" ALTER COLUMN "typeIds" SET DATA TYPE JSON;
+
+-- AlterTable
+ALTER TABLE "limiter" ALTER COLUMN "groups" SET DATA TYPE JSON;
+
+-- AlterTable
+ALTER TABLE "menu" ALTER COLUMN "icon" SET DATA TYPE JSON,
+ALTER COLUMN "roles" SET DATA TYPE JSON;
+
+-- AlterTable
+ALTER TABLE "order" ALTER COLUMN "multiSeatIds" SET DATA TYPE JSON;
+
+-- AlterTable
+ALTER TABLE "orderitem" ALTER COLUMN "images" SET DATA TYPE JSON;
+
+-- AlterTable
+ALTER TABLE "page" ALTER COLUMN "form" SET DATA TYPE JSON,
+ALTER COLUMN "schema" SET DATA TYPE JSON,
+ALTER COLUMN "buttons" SET DATA TYPE JSON,
+ALTER COLUMN "roles" SET DATA TYPE JSON,
+ALTER COLUMN "apis" SET DATA TYPE JSON,
+ALTER COLUMN "procedures" SET DATA TYPE JSON,
+ALTER COLUMN "grid" SET DATA TYPE JSON,
+ALTER COLUMN "settings" SET DATA TYPE JSON;
+
+-- AlterTable
+ALTER TABLE "partner" ALTER COLUMN "images" SET DATA TYPE JSON;
+
+-- AlterTable
+ALTER TABLE "payment_transaction" ALTER COLUMN "ipn" SET DATA TYPE JSON,
+ALTER COLUMN "lastQuery" SET DATA TYPE JSON;
+
+-- AlterTable
+ALTER TABLE "product" ALTER COLUMN "images" SET DATA TYPE JSON;
+
+-- AlterTable
+ALTER TABLE "producttype" ALTER COLUMN "flagIds" SET DATA TYPE JSON,
+ALTER COLUMN "images" SET DATA TYPE JSON,
+ALTER COLUMN "suggestion" SET DATA TYPE JSON;
+
+-- AlterTable
+ALTER TABLE "setting" ALTER COLUMN "settings" SET DATA TYPE JSON;
+
+-- AlterTable
+ALTER TABLE "user" ALTER COLUMN "partnerIds" SET DATA TYPE JSON;
+
+-- AlterTable
+ALTER TABLE "voucher" ALTER COLUMN "shops" SET DATA TYPE JSON,
+ALTER COLUMN "images" SET DATA TYPE JSON,
+ALTER COLUMN "weekdays" SET DATA TYPE JSON,
+ALTER COLUMN "daysOfMonth" SET DATA TYPE JSON,
+ALTER COLUMN "tags" SET DATA TYPE JSON,
+ALTER COLUMN "flagIds" SET DATA TYPE JSON,
+ALTER COLUMN "productIdsOfVoucher" SET DATA TYPE JSON,
+ALTER COLUMN "tagsId" SET DATA TYPE JSON;

@@ -1,0 +1,110 @@
+model conf {
+  createdAt   BigInt? @db.BigInt
+  updatedAt   BigInt? @db.BigInt
+  id          Int     @id @default(autoincrement())
+  name        String? @db.VarChar(255)
+  val         String? @db.VarChar(255)
+  type        String? @db.VarChar(255)
+  description String? @db.VarChar(255)
+}
+
+model menu {
+  createdAt BigInt?  @db.BigInt
+  updatedAt BigInt?  @db.BigInt
+  id        Int      @id @default(autoincrement())
+  name      String?  @db.VarChar(255)
+  url       String?  @db.VarChar(255)
+  icon      Json?    @default("{}") @db.Json
+  roles     Json?    @db.Json
+  parent    Int?
+  isParent  Boolean?
+  sequence  Int?
+  isActive  Boolean?
+}
+
+model page {
+  createdAt  BigInt? @db.BigInt
+  updatedAt  BigInt? @db.BigInt
+  id         Int     @id @default(autoincrement())
+  name       String? @db.VarChar(255)
+  desc       String? @db.VarChar(255)
+  form       Json?   @db.Json
+  schema     Json?   @db.Json
+  buttons    Json?   @db.Json
+  type       String? @db.VarChar(255)
+  read       String? @db.VarChar(255)
+  submit     String? @db.VarChar(255)
+  roles      Json?   @db.Json
+  apis       Json?   @db.Json
+  procedures Json?   @db.Json
+  grid       Json?   @db.Json
+  settings   Json?   @db.Json
+}
+
+model role {
+  createdAt BigInt?      @db.BigInt
+  updatedAt BigInt?      @db.BigInt
+  id        Int          @id @default(autoincrement())
+  name      String?      @db.VarChar(255)
+  special   RoleSpecial? @default(NORMAL)
+}
+
+enum RoleSpecial {
+  ROOT
+  ADMIN
+  SHOP
+  OPERATOR
+  NORMAL
+}
+
+model setting {
+  name      String? @db.VarChar(255)
+  settings  Json?   @default("{}") @db.Json
+  id        Int     @id @default(autoincrement())
+  createdAt BigInt? @db.BigInt
+  updatedAt BigInt? @db.BigInt
+}
+
+model user {
+  createdAt        BigInt?      @db.BigInt
+  updatedAt        BigInt?      @db.BigInt
+  id               Int          @id @default(autoincrement())
+  name             String?      @db.VarChar(255)
+  phone            String?      @db.VarChar(255)
+  email            String?      @db.VarChar(255)
+  birth            BigInt?
+  roleId           Int?
+  roleSpecial      RoleSpecial?
+  gender           Int?
+  address          String?      @db.VarChar(255)
+  username         String?      @db.VarChar(255)
+  password         String?      @db.VarChar(255)
+  avatar           String?      @db.VarChar(255)
+  changePasswordAt BigInt?
+  storeId          Int?
+  applyStoreIds    Json?        @default("[]") @db.Json
+  brandStore       brandStore[]
+}
+
+model summary {
+  id        Int      @id @default(autoincrement())
+  createdAt BigInt?  @db.BigInt
+  updatedAt BigInt?  @db.BigInt
+  year      Int?
+  value     Json?    @db.Json
+  isUpdate  Boolean? @default(false)
+}
+
+model brandStore {
+  createdAt BigInt? @db.BigInt
+  updatedAt BigInt? @db.BigInt
+  id        Int     @id @default(autoincrement())
+  brandId   Json?   @default("[]") @db.Json
+  storeId   Int?
+  userId    Int?
+
+  user  user?  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  store store? @relation(fields: [storeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("brand_store")
+}

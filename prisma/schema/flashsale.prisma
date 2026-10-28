@@ -1,0 +1,43 @@
+model FlashSaleProduct {
+    createdAt            BigInt?  @db.BigInt
+    updatedAt            BigInt?  @db.BigInt
+    id                   Int      @id @default(autoincrement())
+    name                 String?  @db.VarChar(255)
+    description          String?
+    dayFlashSale         String
+    timeFrameFlashSaleId Int
+    startTime            BigInt
+    endTime              BigInt
+    isActive             Boolean? @default(true)
+    year                 Int?
+
+    @@map("flashsale_product")
+}
+
+model FlashSaleProductDetail {
+    createdAt            BigInt?        @db.BigInt
+    updatedAt            BigInt?        @db.BigInt
+    id                   Int            @id @default(autoincrement())
+    partnerId            Int
+    productTypeId        Int
+    productId            Int
+    flashSaleProductId   Int
+    isActive             Boolean?       @default(true)
+    timeFrameFlashSaleId Int
+    itemId               Int?
+    normalPrice          Float?
+    salePrice            Float
+    sequence             Int?           @default(0)
+    startTime            BigInt
+    endTime              BigInt
+    percent              Int?
+    quantity             Int?
+    statusOfParent       StatusOfParent @default(active)
+
+    @@map("flashsale_product_detail")
+}
+
+enum StatusOfParent {
+    active
+    inactive
+}

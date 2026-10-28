@@ -1,0 +1,288 @@
+model category {
+    createdAt   BigInt?       @db.BigInt
+    updatedAt   BigInt?       @db.BigInt
+    id          Int           @id @default(autoincrement())
+    hotSequence Int?
+    name        String?       @db.VarChar(255)
+    parentId    Int?          @default(0)
+    isActive    Boolean?      @default(true)
+    image       String?       @db.VarChar(255)
+    type        CategoryType?
+    isHot       Boolean?      @default(false)
+}
+
+enum CategoryType {
+    voucher
+    product
+}
+
+model code {
+    createdAt           BigInt?  @db.BigInt
+    updatedAt           BigInt?  @db.BigInt
+    id                  Int      @id @default(autoincrement())
+    integrationId       Int?
+    integrationName     String?
+    customerId          Int?
+    voucherId           Int
+    voucherRefId        String?
+    voucherInfo         voucher? @relation(fields: [voucherId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    voucherName         String
+    thumb               String?
+    imagesVoucher       Json?    @default("[]") @db.Json
+    used                Boolean
+    usedAt              BigInt?
+    code                String?
+    isExpired           Boolean  @default(false)
+    expiredAt           BigInt?
+    timeToLive          BigInt?
+    price               Float
+    phone               String?
+    action              String   @default("show_code")
+    productIdsOfVoucher Json?    @default("[]") @db.Json
+    urlTemplate         String?
+    orderId             String?
+    limit_amount        Int?     @default(0)
+    used_amount         Int?     @default(0)
+}
+
+model importcode {
+    createdAt     Int?
+    updatedAt     Int?
+    id            Int      @id @default(autoincrement())
+    voucherId     Float?
+    used          Boolean? @default(false)
+    code          String?  @db.VarChar(255)
+    usedAt        BigInt?
+    usedBy        BigInt?
+    codeRequestId Int?
+    fileId        Int?
+}
+
+model voucher {
+    createdAt            BigInt?             @db.BigInt
+    updatedAt            BigInt?             @db.BigInt
+    id                   Int                 @id @default(autoincrement())
+    categoryId           Int?
+    name                 String?             @db.VarChar(255)
+    images               Json?               @default("[]") @db.Json
+    description          String?             @db.Text
+    instructionManual    String?             @db.Text
+    price                Float?              @default(0)
+    value                String?             @db.VarChar(255)
+    payment              VoucherPaymentEnum?
+    paymentPoint         Float?              @default(0)
+    paymentCash          Float?              @default(0)
+    startDate            BigInt?
+    endDate              BigInt?
+    codeTimeType         String?             @db.VarChar(50)
+    displayCodeType      String?             @db.VarChar(20)
+    codeTime             BigInt?
+    codeLength           Int?
+    isActive             Boolean?            @default(false)
+    isApprove            Boolean?            @default(false)
+    creatorId            Int?
+    thumb                String?             @db.VarChar(255)
+    amountCodeCreated    Int?                @default(0)
+    productIdsOfVoucher  Json?               @default("[]") @db.Json
+    voucherTypeDiscount  Int?
+    valueDiscount        Float?
+    valuePercentDiscount Float?
+    valueMaxDiscount     Float?
+    minAmountPayment     Float?
+    prefixCode           String?
+    oneCodeTime          String?
+    voucherId            String?
+    urlTemplate          String?
+    code                 code[]
+    limiter              limiter?
+}
+
+enum VoucherPaymentEnum {
+    free
+    point
+    online
+    both
+}
+
+model voucherCategory {
+    createdAt   BigInt? @db.BigInt
+    updatedAt   BigInt? @db.BigInt
+    id          Int     @id @default(autoincrement())
+    voucherId   Int
+    name        String  @db.VarChar(255)
+    earnPercent Float?  @default(0)
+}
+
+model shop {
+    createdAt  BigInt?  @db.BigInt
+    updatedAt  BigInt?  @db.BigInt
+    id         Int      @id @default(autoincrement())
+    name       String?  @db.VarChar(255)
+    phone      String?  @db.VarChar(255)
+    address    String?  @db.VarChar(255)
+    gps        String?  @db.VarChar(255)
+    partnerId  Int?
+    provinceId Int?
+    districtId Int?
+    wardId     Int?
+    isActive   Boolean? @default(true)
+    sourceId   Int?
+    shopId     String?  @db.VarChar(100)
+    closeTime  String?  @db.VarChar(20)
+}
+
+model FlashSaleVoucher {
+    createdAt            BigInt?  @db.BigInt
+    updatedAt            BigInt?  @db.BigInt
+    id                   Int      @id @default(autoincrement())
+    name                 String?  @db.VarChar(255)
+    description          String?
+    dayFlashSale         String
+    timeFrameFlashSaleId Int
+    startTime            BigInt
+    endTime              BigInt
+    isActive             Boolean? @default(true)
+    year                 Int?
+
+    @@map("flashsale_voucher")
+}
+
+model FlashSaleVoucherDetail {
+    createdAt            BigInt?         @db.BigInt
+    updatedAt            BigInt?         @db.BigInt
+    id                   Int             @id @default(autoincrement())
+    voucherId            Int
+    flashSaleVoucherId   Int
+    isActive             Boolean?        @default(true)
+    timeFrameFlashSaleId Int
+    itemId               Int?
+    normalPrice          Float?
+    salePrice            Float?
+    sequence             Int?            @default(0)
+    startTime            BigInt
+    endTime              BigInt
+    percent              Int?
+    quantity             Int?
+    statusOfParent       StatusOfParent? @default(active)
+
+    @@map("flashsale_voucher_detail")
+}
+
+model TimeFrameFlashSale {
+    createdAt BigInt?  @db.BigInt
+    updatedAt BigInt?  @db.BigInt
+    id        Int      @id @default(autoincrement())
+    name      String?  @db.VarChar(255)
+    startHour Int
+    endHour   Int
+    isActive  Boolean? @default(true)
+
+    @@map("time_frame_flash_sale")
+}
+
+model groupVoucher {
+    createdAt BigInt? @db.BigInt
+    updatedAt BigInt? @db.BigInt
+    id        Int     @id @default(autoincrement())
+    name      String? @db.VarChar(255)
+    itemId    Int?
+
+    @@map("group_voucher")
+}
+
+model serviceType {
+    createdAt  BigInt?  @db.BigInt
+    updatedAt  BigInt?  @db.BigInt
+    id         Int      @id @default(autoincrement())
+    name       String?  @db.VarChar(255)
+    code       String?  @db.VarChar(50)
+    type       String?  @db.VarChar(50)
+    state      Boolean? @default(true)
+    icon       String?
+    background String?
+    tag        String?
+    lineColor  String?  @db.VarChar(50)
+
+    @@map("servicetype")
+}
+
+model provider {
+    createdAt         BigInt?  @db.BigInt
+    updatedAt         BigInt?  @db.BigInt
+    id                Int      @id @default(autoincrement())
+    name              String?  @db.VarChar(255)
+    state             Boolean? @default(true)
+    description       String?
+    phone             String?
+    email             String?
+    logo              String?
+    merchantCodePoint String?
+    merchantCodeMoney String?
+}
+
+model coderequest {
+    createdAt             BigInt?              @db.BigInt
+    updatedAt             BigInt?              @db.BigInt
+    id                    Int                  @id @default(autoincrement())
+    creatorId             Int?
+    voucherId             Int?
+    description           String?              @db.VarChar(255)
+    nameCode              String?              @db.VarChar(255)
+    amount                Int?
+    provider              String?              @db.VarChar(255)
+    gameCodeProviderId    Int?
+    note                  String?              @db.VarChar(255)
+    fileId                Int?
+    status                statusCodeRequest    @default(pending)
+    type                  typeCodeRequest?
+    typeId                Int?
+    codeType              codeTypeCodeRequest?
+    typeDiscount          String?              @db.VarChar(255)
+    value                 Int?
+    expireCodeDiscount    BigInt?
+    startTimeCanEnterCode BigInt?
+    minValueOfOrder       Int?
+    maxValueOfOrder       Int?
+    maxValueDiscount      Int?
+    onlyUsed              onlyUsedCodeRequest  @default(all)
+    storeId               Int?
+    productIds            Json?                @default("[]") @db.Json
+    gameTurn              Int?
+    gameId                Int?
+}
+
+enum statusCodeRequest {
+    pending
+    finished
+}
+
+enum codeTypeCodeRequest {
+    random
+    import
+}
+
+enum onlyUsedCodeRequest {
+    all
+    store
+    products
+}
+
+enum typeCodeRequest {
+    voucher
+    discount
+    point
+    gamecode
+    both
+    product
+}
+
+model PartnerLike {
+    createdAt  BigInt?  @db.BigInt
+    updatedAt  BigInt?  @db.BigInt
+    id         Int      @id @default(autoincrement())
+    customerId Int?
+    partnerId  Int?
+    firstLike  Boolean? @default(false)
+
+    @@map("partnerlike")
+}

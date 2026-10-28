@@ -1,0 +1,30 @@
+model InvoiceOrder {
+    createdAt BigInt?       @db.BigInt
+    updatedAt BigInt?       @db.BigInt
+    id        Int           @id @default(autoincrement())
+    orderId   Int
+    type      InvoiceType   @default(customer)
+    status    InvoiceStatus @default(pending)
+    name      String
+    address   String?
+    email     String
+    taxCode   String?
+    vatRate   Int?
+    oid       String?
+    invCode   String?
+    invSign   String?
+    link      String?
+
+    @@map("invoice_order")
+}
+
+enum InvoiceType {
+    customer
+    company
+}
+
+enum InvoiceStatus {
+    pending
+    sendToCQT
+    cancelled
+}

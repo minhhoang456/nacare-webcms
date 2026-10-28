@@ -1,0 +1,27 @@
+{
+  "presets": ["@babel/preset-env", "@babel/preset-typescript"],
+  "ignore": [
+    "node_modules",
+    ".tmp",
+    ".vscode",
+    "assets",
+    "prisma",
+    "static",
+    "template",
+    "commander.ts",
+    ".husky",
+    "admin"
+  ],
+  "plugins": [
+    [
+      "module-resolver",
+      {
+        "root": ["."],
+        "alias": {
+          "@root": ".",
+          "@src": "./src"
+        }
+      }
+    ]
+  ]
+}
